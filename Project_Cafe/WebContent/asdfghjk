@@ -1,0 +1,71 @@
+<%@page import ="java.sql.ResultSet"%>
+<%@page import ="java.sql.Statement"%>
+<%@page import ="java.sql.DriverManager"%>
+<%@page import ="java.sql.PreparedStatement"%>
+<%@page import ="java.sql.Connection"%>
+<%@page contentType ="text/html" pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<%@ include file="header.jsp" %>
+<p><br/></p>
+<%
+	String host = "jdbc:mysql://localhost:3306/mydata";
+	Connection conn = null;
+	Statement stat = null;
+	ResultSet res = null;
+	PreparedStatement stmt = null;
+	Class.forName("com.mysql.jdbc.Driver").newInstance();
+	conn = DriverManager.getConnection(host, "root", "");
+%>
+<form action="" method="post">
+	<%
+		stat = conn.createStatement();
+		String u = request.getParameter("u");
+		int num = Integer.parseInt(u);
+		String data = "select * from crud where id='"+num+"'";
+		res = stat.executeQuery(data);
+		while(res.next()){
+	%>
+	
+	<input type="hidden" name="id" value='<%=res.getString("id") %>'/>
+	<div class="form-group">
+		<label>Name</label>
+		<input type="text" class="form-control" name="nm" value='<%=res.getString("name") %>'/>
+	</div>
+	<div class="form-group">
+		<label>Email</label>
+		<input type="email" class="form-control" name="em" value='<%=res.getString("email") %>'/>
+	</div>
+	<div class="form-group">
+		<label>Phone Number</label>
+		<input type="tel" class="form-control" name="pn" value='<%=res.getString("phone") %>'/>
+	</div>
+	<div class="form-group">
+		<label>Address</label>
+		<textarea class="form-control" name="ad" placeholder="Your address"></textarea>
+	</div>
+	<%
+	}
+	%>
+	<button type="submit" class="btn btn-warning">Update</button>
+	<a href="index.jsp" class="btn btn-default">Back</a>
+</form>
+<%@ include file="footer.jsp" %>
+</html>
+	<%
+		String a = request.getParameter("id");
+		String b = request.getParameter("nm");
+		String c = request.getParameter("em");
+		String d = request.getParameter("pn");
+		String e = request.getParameter("ad");
+		if(a!=null && b!=null && c!=null && d!=null && e!=null){
+			String query = "update crud set name=?, email=?, phone=?, address=? where id='"+a+"'";
+			stmt = conn.prepareStatement(query);
+			stmt.setString(1,b);
+			stmt.setString(2,c);
+			stmt.setString(3,d);
+			stmt.setString(4,e);
+			stmt.executeUpdate();
+			response.sendRedirective("index.jsp");
+		}
+	%>
